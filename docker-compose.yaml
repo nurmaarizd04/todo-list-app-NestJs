@@ -1,0 +1,17 @@
+services:
+  service-nest-auth-jwt:
+    image: nest-auth-jwt:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    working_dir: /usr/src/app
+    container_name: service-nest-auth-jwt
+    ports:
+      - "${APP_TODO_LIST_PORT}:${APP_TODO_LIST_PORT}"
+    networks:
+      - test-bridge
+
+networks:
+  test-bridge:
+    driver: bridge
