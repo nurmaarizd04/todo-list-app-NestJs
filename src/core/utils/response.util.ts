@@ -62,11 +62,3 @@ export function composePagingResponseResult<T>(
 
         return result;
 }
-
-export function sendLoginResponse<T>(response: Response, result: AppResponse<DefaultResponse<T>>, payload: Partial<T>) {
-        response.status(result.statusCode.code).json({
-                code: result.responseBody.code,
-                message: result.responseBody.message,
-                payload
-        });
-}
