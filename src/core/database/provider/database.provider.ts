@@ -1,6 +1,6 @@
 import { ConfigService } from "@nestjs/config";
-import { ChecklistEntity } from "src/core/entity/checklist.entity";
-import { ChecklistItemEntity } from "src/core/entity/checklist.item.entity";
+import { TodoEntity } from "src/core/entity/todo.entity";
+import { TodoItemEntity } from "src/core/entity/todo.item.entity";
 import { UserEntity } from "src/core/entity/user.entity";
 import { Constant } from "src/core/utils/constant.util";
 import { DataSource } from "typeorm";
@@ -15,7 +15,7 @@ export const databaseProvider = {
                         username: configService.get("APP_TODO_LIST_DATABASE_USERNAME"),
                         password: configService.get("APP_TODO_LIST_DATABASE_PASSWORD"),
                         database: configService.get("APP_TODO_LIST_DATABASE_NAME"),
-                        entities: [UserEntity, ChecklistEntity, ChecklistItemEntity],
+                        entities: [UserEntity, TodoEntity, TodoItemEntity],
                         synchronize: configService.get("APP_TODO_LIST_DATABASE_SYNCHRONIZE")
                 });
 

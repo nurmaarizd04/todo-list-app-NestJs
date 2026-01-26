@@ -4,12 +4,12 @@ import { CoreSecurityModule } from "./core/security/module/core.security.module"
 import { AuthModule } from "./auth/module/auth.module";
 import { AuthController } from "./auth/controller/auth.controller";
 import { TokenModule } from "./token/module/token.module";
-import { ChecklistModule } from "./checklist/module/checklist.module";
-import { ChecklistController } from "./checklist/controller/checklist.controller";
 import { UserController } from "./user/controller/user.controller";
 import { UserModule } from "./user/module/user.module";
-import { ChecklistItemModule } from "./checklist-item/module/checklist.item.module";
-import { ChecklistItemController } from "./checklist-item/controller/checklist.item.controller";
+import { TodoItemModule } from "./todo-item/module/todo.item.module";
+import { TodoItemController } from "./todo-item/controller/todo.item.controller";
+import { TodoModule } from "./todo/module/todo.module";
+import { TodoController } from "./todo/controller/todo.controller";
 
 @Module({
         imports: [
@@ -18,9 +18,9 @@ import { ChecklistItemController } from "./checklist-item/controller/checklist.i
                 AuthModule,
                 TokenModule,
                 UserModule,
-                ChecklistModule,
-                ChecklistItemModule
+                TodoModule,
+                TodoItemModule
         ],
-        controllers: [AuthController, UserController, ChecklistController, ChecklistItemController]
+        controllers: [AuthController, UserController, TodoController, TodoItemController]
 })
 export class MainModule {}

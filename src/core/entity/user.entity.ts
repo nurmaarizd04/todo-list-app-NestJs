@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { ChecklistEntity } from "./checklist.entity";
+import { TodoEntity } from "./todo.entity";
 
 @Entity({ name: "user" })
 export class UserEntity {
@@ -37,6 +37,6 @@ export class UserEntity {
         })
         updatedAt?: bigint;
 
-        @OneToMany(() => ChecklistEntity, (checklist) => checklist.user)
-        checklists: ChecklistEntity[];
+        @OneToMany(() => TodoEntity, (todoEntity) => todoEntity.user)
+        checklists: TodoEntity[];
 }

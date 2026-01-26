@@ -32,7 +32,6 @@ export class AuthController {
                         });
         }
 
-        // noo set cookie
         @Post("login")
         login(@Body() requestBody: LoginRequest, @Res() response: Response): void {
                 const requestData: LoginRequest = plainToInstance(LoginRequest, requestBody, {
