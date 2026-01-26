@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { instanceToPlain } from "class-transformer";
 import { TokenRepository } from "../repository/token.repository";
 import { TokenPayloadAuth } from "src/core/model/internal/token.payload.auth";
 
@@ -10,7 +9,15 @@ export class TokenSource extends TokenRepository {
                 super();
         }
 
-        async createAccessToken(payload: TokenPayloadAuth): Promise<string | null> {
-                return this.jwtService.signAsync(instanceToPlain(payload));
+        async createAccessToken(payload: TokenPayloadAuth): Promise<string> {
+                return this.jwtService.signAsync(
+                        {
+                                id: payload.id,
+                                email: payload.email
+                        },
+                        {
+                                expiresIn: "2m"
+                        }
+                );
         }
 }

@@ -1,18 +1,21 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
+import { PassportModule } from "@nestjs/passport";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { JwtStrategy } from "../jwt.strategy";
 
 @Module({
         imports: [
+                PassportModule,
                 JwtModule.registerAsync({
                         imports: [ConfigModule],
+                        inject: [ConfigService],
                         useFactory: (configService: ConfigService) => ({
-                                secret: configService.get("APP_TODO_LIST_JWT_SECRET")
+                                secret: configService.getOrThrow<string>("APP_TODO_LIST_JWT_SECRET")
                         }),
-                        global: true,
-                        inject: [ConfigService]
+                        global: true
                 })
-        ]
+        ],
+        providers: [JwtStrategy]
 })
 export class CoreSecurityModule {}

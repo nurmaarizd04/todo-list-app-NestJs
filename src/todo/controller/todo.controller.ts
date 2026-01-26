@@ -7,14 +7,14 @@ import { sendInternalServerErrorResponse, sendResponseByResult } from "src/core/
 import { Request, Response } from "express";
 import { TodoQueryParamRequest } from "src/core/model/request/todo.query.param.request.model";
 import { GetPageTodosResult, GetTodoItemResult } from "../alias/todo.alias";
-import { CoreSecurity } from "src/core/security/core.security";
 import { TokenPayloadAuth } from "src/core/model/internal/token.payload.auth";
 import { CurrentUser } from "src/core/security/current.user.decorator";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller({
         path: "todo"
 })
-@UseGuards(CoreSecurity)
+@UseGuards(AuthGuard("jwt"))
 export class TodoController {
         private logger: Logger;
 

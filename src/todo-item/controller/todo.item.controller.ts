@@ -3,7 +3,6 @@ import { plainToInstance } from "class-transformer";
 import { DefaultResult } from "src/core/alias/core.alias";
 import { sendInternalServerErrorResponse, sendResponseByResult } from "src/core/utils/response.util";
 import { Request, Response } from "express";
-import { CoreSecurity } from "src/core/security/core.security";
 import { TokenPayloadAuth } from "src/core/model/internal/token.payload.auth";
 import { CurrentUser } from "src/core/security/current.user.decorator";
 import { TodoItemService } from "../service/todo.item.service";
@@ -14,7 +13,6 @@ import { GetPageTodoItemsResult, GetTodoItemResult } from "../alias/todo.item.al
 @Controller({
         path: "todo-item"
 })
-@UseGuards(CoreSecurity)
 export class TodoItemController {
         private logger: Logger;
 

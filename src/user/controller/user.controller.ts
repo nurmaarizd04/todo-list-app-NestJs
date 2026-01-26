@@ -1,5 +1,4 @@
 import { Controller, Get, Logger, Param, Query, Req, Res, UseGuards } from "@nestjs/common";
-import { CoreSecurity } from "src/core/security/core.security";
 import { UserService } from "../service/user.service";
 import { UserQueryParamRequest } from "src/core/model/request/user.query.param.request";
 import { sendInternalServerErrorResponse, sendResponseByResult } from "src/core/utils/response.util";
@@ -10,7 +9,6 @@ import { Request, Response } from "express";
 @Controller({
         path: "user"
 })
-@UseGuards(CoreSecurity)
 export class UserController {
         private logger: Logger;
 
