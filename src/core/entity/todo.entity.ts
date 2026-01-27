@@ -36,7 +36,7 @@ export class TodoEntity {
         updatedAt?: bigint;
 
         // ✅ banyak checklist milik 1 user
-        @ManyToOne(() => UserEntity, (user) => user.checklists, { onDelete: "CASCADE" })
+        @ManyToOne(() => UserEntity, (user) => user.todos, { onDelete: "CASCADE" })
         @JoinColumn({ name: "user_id" })
         user: UserEntity;
 

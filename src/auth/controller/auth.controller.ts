@@ -1,12 +1,13 @@
-import { Body, Controller, Logger, Post, Res } from "@nestjs/common";
+import { Body, Controller, Logger, Post, Req, Res } from "@nestjs/common";
 import { AuthService } from "../service/auth.service";
 import { plainToInstance } from "class-transformer";
 import { DefaultResult } from "src/core/alias/core.alias";
 import { sendInternalServerErrorResponse, sendResponseByResult } from "src/core/utils/response.util";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { LoginRequest } from "src/core/model/request/login.upsert.request";
 import { LoginResult } from "../alias/auth.alias";
 import { RegistrasiRequest } from "src/core/model/request/registrasi.upsert.request";
+import { RefreshTokenRequest } from "src/core/model/request/refresh.token.request";
 
 @Controller()
 export class AuthController {
@@ -47,6 +48,37 @@ export class AuthController {
                         .catch((error): void => {
                                 sendInternalServerErrorResponse(response);
                                 this.logger.error("[POST /login] Error", error);
+                        });
+        }
+
+        @Post("refresh-token")
+        refreshToken(@Body() requestBody: RefreshTokenRequest, @Res() response: Response): void {
+                const requestData: RefreshTokenRequest = plainToInstance(RefreshTokenRequest, requestBody, {
+                        exposeDefaultValues: true
+                });
+
+                this.authService
+                        .refreshAccessToken(requestData)
+                        .then((result: LoginResult): void => {
+                                sendResponseByResult(response, result);
+                                this.logger.log(`[POST /refresh-token] ${result.statusCode.message}`);
+                        })
+                        .catch((error): void => {
+                                sendInternalServerErrorResponse(response);
+                                this.logger.error("[POST /refresh-token] Error", error);
+                        });
+        }
+        @Post("logout")
+        logout(@Req() request: Request, @Res() response: Response): void {
+                this.authService
+                        .logoutFromHeader(request.headers["authorization"])
+                        .then((result: DefaultResult) => {
+                                sendResponseByResult(response, result);
+                                this.logger.log(`[POST /logout] ${result.statusCode.message}`);
+                        })
+                        .catch((error) => {
+                                sendInternalServerErrorResponse(response);
+                                this.logger.error("[POST /logout] Error", error);
                         });
         }
 }

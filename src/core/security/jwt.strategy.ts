@@ -12,6 +12,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 
                 const secret = configService.getOrThrow<string>("APP_TODO_LIST_JWT_SECRET");
 
+                console.log("secret", secret);
+
                 super({
                         jwtFromRequest: jwtExtractor,
                         secretOrKey: secret,

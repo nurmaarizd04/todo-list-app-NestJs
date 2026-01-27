@@ -5,10 +5,12 @@ import { sendInternalServerErrorResponse, sendResponseByResult } from "src/core/
 import { plainToInstance } from "class-transformer";
 import { GetPageUsersResult, GetUserItemResult } from "../alias/user.alias";
 import { Request, Response } from "express";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller({
         path: "user"
 })
+@UseGuards(AuthGuard("jwt"))
 export class UserController {
         private logger: Logger;
 

@@ -38,5 +38,5 @@ export class UserEntity {
         updatedAt?: bigint;
 
         @OneToMany(() => TodoEntity, (todoEntity) => todoEntity.user)
-        checklists: TodoEntity[];
+        todos: TodoEntity[];
 }

@@ -18,4 +18,10 @@ export class AuthSource extends AuthRepository {
                         where: { email: email }
                 });
         }
+
+        async getUserById(id: string): Promise<UserEntity | null> {
+                return await this.userRepository.findOne({
+                        where: { id: id }
+                });
+        }
 }

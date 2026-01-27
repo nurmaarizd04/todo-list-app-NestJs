@@ -1,4 +1,5 @@
 import { ConfigService } from "@nestjs/config";
+import { RefreshTokenEntity } from "src/core/entity/refresh.token.entity";
 import { TodoEntity } from "src/core/entity/todo.entity";
 import { TodoItemEntity } from "src/core/entity/todo.item.entity";
 import { UserEntity } from "src/core/entity/user.entity";
@@ -15,7 +16,7 @@ export const databaseProvider = {
                         username: configService.get("APP_TODO_LIST_DATABASE_USERNAME"),
                         password: configService.get("APP_TODO_LIST_DATABASE_PASSWORD"),
                         database: configService.get("APP_TODO_LIST_DATABASE_NAME"),
-                        entities: [UserEntity, TodoEntity, TodoItemEntity],
+                        entities: [UserEntity, TodoEntity, TodoItemEntity, RefreshTokenEntity],
                         synchronize: configService.get("APP_TODO_LIST_DATABASE_SYNCHRONIZE")
                 });
 

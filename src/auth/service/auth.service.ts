@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthRepository } from "../repository/auth.repository";
 import { LoginRequest } from "src/core/model/request/login.upsert.request";
 import { DefaultResult } from "src/core/alias/core.alias";
@@ -15,12 +15,22 @@ import { TokenPayloadAuth } from "src/core/model/internal/token.payload.auth";
 import { Credential } from "src/core/model/credential.model";
 import { RegistrasiRequest } from "src/core/model/request/registrasi.upsert.request";
 import { UserCredential } from "src/core/model/user.credential.model";
+import { RefreshTokenEntity } from "src/core/entity/refresh.token.entity";
+import { RefreshTokenRepository } from "src/refresh-token/repository/refresh.token.repository";
+import { JwtService } from "@nestjs/jwt";
+import { RefreshTokenRequest } from "src/core/model/request/refresh.token.request";
+import { ConfigService } from "@nestjs/config";
+import { RefreshTokenConverter } from "src/refresh-token/converter/refresh.token.converter";
+import { getBearerToken } from "src/core/utils/auth.util";
 
 @Injectable()
 export class AuthService {
         constructor(
                 private readonly authRepository: AuthRepository,
-                private readonly tokenRepository: TokenRepository
+                private readonly tokenRepository: TokenRepository,
+                private readonly refreshTokenRepository: RefreshTokenRepository,
+                private readonly jwtService: JwtService,
+                private readonly configService: ConfigService
         ) {}
 
         async createRegisterUser(data: RegistrasiRequest): Promise<DefaultResult> {
@@ -49,6 +59,7 @@ export class AuthService {
                         return composeDefaultResponseResult(StatusCodeUtil.UNAUTHORIZED);
                 }
 
+                await this.refreshTokenRepository.revokeAllByUserId(existingUser.id);
                 const credential: Credential | null = await this.createCredentialAccess(existingUser);
 
                 if (!credential) {
@@ -58,15 +69,110 @@ export class AuthService {
                 return composeDefaultResponseResult(StatusCodeUtil.OK, credential);
         }
 
-        private async createCredentialAccess(user: UserEntity): Promise<Credential | null> {
-                const tokenPayload = new TokenPayloadAuth(user);
+        async refreshAccessToken(request: RefreshTokenRequest): Promise<LoginResult> {
+                try {
+                        const payload = await this.verifyRefreshToken(request.refreshToken);
+                        const storedToken = await this.validateStoredRefreshToken(payload.id, request.refreshToken);
+                        const user = await this.getUserOrFail(payload.id);
 
-                const accessToken = await this.tokenRepository.createAccessToken(tokenPayload);
+                        await this.refreshTokenRepository.revoke(storedToken.id);
 
-                if (!checkStringIsAvailable(accessToken)) {
-                        return null;
+                        return this.buildCredentialResponse(user);
+                } catch {
+                        return composeDefaultResponseResult(StatusCodeUtil.UNAUTHORIZED);
+                }
+        }
+
+        async logout(token: string): Promise<DefaultResult> {
+                const payload = await this.verifyRefreshToken(token);
+
+                const storedToken = await this.refreshTokenRepository.findActiveByUserId(payload.id);
+                if (!storedToken) {
+                        return composeDefaultResponseResult(StatusCodeUtil.NOT_FOUND);
                 }
 
-                return new Credential(accessToken!, new UserCredential(user));
+                await this.refreshTokenRepository.revoke(storedToken.id);
+
+                return composeDefaultResponseResult(StatusCodeUtil.OK);
+        }
+
+        public async logoutFromHeader(authHeader?: string): Promise<DefaultResult> {
+                if (!checkStringIsAvailable(authHeader)) {
+                        return composeDefaultResponseResult(StatusCodeUtil.BAD_REQUEST);
+                }
+
+                const token = getBearerToken(authHeader);
+                return this.logout(token);
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //// Internal Methods //////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        //untuk memverifikasi JWT refresh token.
+        private async verifyRefreshToken(refreshToken: string): Promise<{ id: string }> {
+                return this.jwtService.verifyAsync<{ id: string }>(refreshToken, {
+                        secret: this.configService.getOrThrow("APP_TODO_LIST_JWT_SECRET_REFRESH")
+                });
+        }
+
+        // ntuk memastikan refresh token yang dikirim client valid di sisi server.
+        private async validateStoredRefreshToken(userId: string, refreshToken: string): Promise<RefreshTokenEntity> {
+                // Cari refresh token aktif user
+                const token = await this.refreshTokenRepository.findActiveByUserId(userId);
+
+                if (!token) {
+                        throw new UnauthorizedException("Refresh token not found");
+                }
+
+                const isValid = await compare(refreshToken, token.fcmToken);
+                if (!isValid) {
+                        throw new UnauthorizedException("Invalid refresh token");
+                }
+
+                // Pastikan belum expired
+                if (token.expiresAt < Date.now()) {
+                        await this.refreshTokenRepository.revoke(token.id);
+                        throw new UnauthorizedException("Refresh token expired");
+                }
+
+                return token;
+        }
+
+        private async getUserOrFail(userId: string): Promise<UserEntity> {
+                const user = await this.authRepository.getUserById(userId);
+                if (!user) {
+                        throw new UnauthorizedException();
+                }
+                return user;
+        }
+
+        // ini untuk buat token baru, simpan refresh token di DB, dan kembalikan credential lengkap.
+        private async generateAndStoreCredential(user: UserEntity): Promise<Credential> {
+                const payload = new TokenPayloadAuth(user);
+
+                const accessToken = await this.tokenRepository.createAccessToken(payload);
+                const refreshToken = await this.tokenRepository.createRefreshToken(payload);
+
+                const refreshTokenHash = await hash(refreshToken, Constant.DEFAULT_SALT);
+
+                const refreshEntity: RefreshTokenEntity = RefreshTokenConverter.convertUpsertRequestToEntity(
+                        user.id,
+                        refreshTokenHash
+                );
+
+                await this.refreshTokenRepository.createRefreshToken(refreshEntity);
+
+                return new Credential(accessToken, new UserCredential(user), refreshToken);
+        }
+
+        private async createCredentialAccess(user: UserEntity): Promise<Credential> {
+                return this.generateAndStoreCredential(user);
+        }
+
+        // untuk menghasilkan credential baru untuk user dan mengemasnya jadi response API.
+        private async buildCredentialResponse(user: UserEntity): Promise<LoginResult> {
+                const credential: Credential = await this.generateAndStoreCredential(user);
+
+                return composeDefaultResponseResult(StatusCodeUtil.OK, credential);
         }
 }
