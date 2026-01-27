@@ -33,7 +33,7 @@ export class TokenSource extends TokenRepository {
                         },
                         {
                                 secret: this.configService.getOrThrow("APP_TODO_LIST_JWT_SECRET_REFRESH"),
-                                expiresIn: "7d"
+                                expiresIn: "1d"
                         }
                 );
         }

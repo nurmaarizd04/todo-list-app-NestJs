@@ -117,22 +117,14 @@ export class AuthService {
 
         // ntuk memastikan refresh token yang dikirim client valid di sisi server.
         private async validateStoredRefreshToken(userId: string, refreshToken: string): Promise<RefreshTokenEntity> {
-                // Cari refresh token aktif user
                 const token = await this.refreshTokenRepository.findActiveByUserId(userId);
-
                 if (!token) {
-                        throw new UnauthorizedException("Refresh token not found");
+                        throw new UnauthorizedException("Refresh token expired or revoked");
                 }
 
                 const isValid = await compare(refreshToken, token.fcmToken);
                 if (!isValid) {
                         throw new UnauthorizedException("Invalid refresh token");
-                }
-
-                // Pastikan belum expired
-                if (token.expiresAt < Date.now()) {
-                        await this.refreshTokenRepository.revoke(token.id);
-                        throw new UnauthorizedException("Refresh token expired");
                 }
 
                 return token;

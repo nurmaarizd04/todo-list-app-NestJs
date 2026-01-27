@@ -57,8 +57,6 @@ export class TodoService {
                         query
                 );
 
-                console.log("user", user);
-
                 const todo: Todo[] = TodoConverter.convertEntitiesToModels(todoEntity.data);
 
                 const pageInfo: PageInfo = buildPageInfo({

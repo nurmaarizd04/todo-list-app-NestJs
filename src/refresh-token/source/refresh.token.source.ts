@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { RefreshTokenRepository } from "../repository/refresh.token.repository";
 import { RefreshTokenEntity } from "src/core/entity/refresh.token.entity";
-import { IsNull, Repository, Not } from "typeorm";
+import { IsNull, Repository, Not, MoreThan } from "typeorm";
 
 @Injectable()
 export class RefreshTokenSource extends RefreshTokenRepository {
@@ -15,13 +15,21 @@ export class RefreshTokenSource extends RefreshTokenRepository {
 
         findActiveByUserId(userId: string): Promise<RefreshTokenEntity | null> {
                 return this.refreshTokenRepository.findOne({
-                        where: { userId, revokedAt: IsNull() }
+                        where: {
+                                userId,
+                                revokedAt: IsNull(),
+                                expiresAt: MoreThan(Date.now())
+                        }
                 });
         }
 
         findAllActiveByUserId(userId: string): Promise<RefreshTokenEntity[]> {
                 return this.refreshTokenRepository.find({
-                        where: { userId, revokedAt: IsNull() }
+                        where: {
+                                userId,
+                                revokedAt: IsNull(),
+                                expiresAt: MoreThan(Date.now())
+                        }
                 });
         }
 
