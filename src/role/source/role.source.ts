@@ -34,6 +34,7 @@ export class RoleSource extends RoleRepository {
                         where: { id: id }
                 });
         }
+
         async updateRoleById(id: string, entity: RoleEntity): Promise<boolean> {
                 const result: UpdateResult = await this.roleRepository.update({ id: id }, entity);
                 return result.affected != undefined && result.affected > 0;

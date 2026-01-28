@@ -6,4 +6,8 @@ export abstract class UserRepository {
         abstract getPageUser(query: UserQueryParamRequest): Promise<PagingData<UserEntity>>;
 
         abstract getUserById(id: string): Promise<UserEntity | null>;
+
+        abstract updateUserById(id: string, entity: UserEntity): Promise<boolean>;
+
+        abstract deleteUserById(id: string): Promise<boolean>;
 }

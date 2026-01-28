@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { TodoEntity } from "./todo.entity";
 import { RoleEntity } from "./role.entity";
+import { RefreshTokenEntity } from "./refresh.token.entity";
 
 @Entity({ name: "user" })
 export class UserEntity {
@@ -56,4 +57,7 @@ export class UserEntity {
 
         @OneToMany(() => TodoEntity, (todoEntity) => todoEntity.user)
         todos: TodoEntity[];
+
+        @OneToMany(() => RefreshTokenEntity, (refreshTokenEntity: RefreshTokenEntity) => refreshTokenEntity.user)
+        refreshTokens: RefreshTokenEntity[];
 }

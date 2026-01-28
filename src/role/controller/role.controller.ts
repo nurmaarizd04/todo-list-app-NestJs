@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { DefaultResult } from "src/core/alias/core.alias";
 import { sendInternalServerErrorResponse, sendResponseByResult } from "src/core/utils/response.util";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { TokenPayloadAuth } from "src/core/model/internal/token.payload.auth";
 import { CurrentUser } from "src/core/security/current.user.decorator";
 import { AuthGuard } from "@nestjs/passport";

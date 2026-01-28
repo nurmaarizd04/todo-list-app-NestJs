@@ -52,7 +52,9 @@ export class RefreshTokenEntity {
         })
         updatedAt?: number;
 
-        @ManyToOne(() => UserEntity)
+        @ManyToOne(() => UserEntity, {
+                onDelete: "CASCADE"
+        })
         @JoinColumn({ name: "user_id" })
         user: UserEntity;
 }

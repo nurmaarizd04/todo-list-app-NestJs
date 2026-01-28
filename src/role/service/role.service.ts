@@ -61,6 +61,10 @@ export class RoleService {
         }
 
         async updateRoleById(userInfo: TokenPayloadAuth, id: string, data: RoleUpsertRequest): Promise<DefaultResult> {
+                if (userInfo.role !== "super-admin") {
+                        return composeDefaultResponseResult(StatusCodeUtil.FORBIDDEN);
+                }
+
                 const roleEntity: RoleEntity | null = await this.roleRepository.getRoleById(id);
 
                 if (roleEntity === null) {
@@ -86,6 +90,10 @@ export class RoleService {
         }
 
         async deleteRoleById(userInfo: TokenPayloadAuth, id: string): Promise<DefaultResult> {
+                if (userInfo.role !== "super-admin") {
+                        return composeDefaultResponseResult(StatusCodeUtil.FORBIDDEN);
+                }
+
                 const deletedSuccess: boolean = await this.roleRepository.deleteRoleById(id);
 
                 if (deletedSuccess === false) return composeDefaultResponseResult(StatusCodeUtil.INTERNAL_SERVER_ERROR);

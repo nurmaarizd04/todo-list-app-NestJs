@@ -68,6 +68,7 @@ export class AuthController {
                                 this.logger.error("[POST /refresh-token] Error", error);
                         });
         }
+
         @Post("logout")
         logout(@Req() request: Request, @Res() response: Response): void {
                 this.authService
