@@ -15,13 +15,15 @@ export class AuthSource extends AuthRepository {
 
         async getUserByEmail(email: string): Promise<UserEntity | null> {
                 return await this.userRepository.findOne({
-                        where: { email: email }
+                        where: { email: email },
+                        relations: { role: true }
                 });
         }
 
         async getUserById(id: string): Promise<UserEntity | null> {
                 return await this.userRepository.findOne({
-                        where: { id: id }
+                        where: { id: id },
+                        relations: { role: true }
                 });
         }
 }

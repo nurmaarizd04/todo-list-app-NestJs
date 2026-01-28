@@ -14,16 +14,10 @@ export class TokenSource extends TokenRepository {
         }
 
         async createAccessToken(payload: TokenPayloadAuth): Promise<string> {
-                return this.jwtService.signAsync(
-                        {
-                                id: payload.id,
-                                email: payload.email
-                        },
-                        {
-                                secret: this.configService.getOrThrow("APP_TODO_LIST_JWT_SECRET"),
-                                expiresIn: "2m"
-                        }
-                );
+                return this.jwtService.signAsync(payload, {
+                        secret: this.configService.getOrThrow("APP_TODO_LIST_JWT_SECRET"),
+                        expiresIn: "20m"
+                });
         }
 
         async createRefreshToken(payload: TokenPayloadAuth): Promise<string> {

@@ -34,6 +34,19 @@ export class AuthService {
         ) {}
 
         async createRegisterUser(data: RegistrasiRequest): Promise<DefaultResult> {
+                if (
+                        !checkStringIsAvailable(data.username) ||
+                        !checkStringIsAvailable(data.email) ||
+                        !checkStringIsAvailable(data.password)
+                ) {
+                        return composeDefaultResponseResult(StatusCodeUtil.BAD_REQUEST);
+                }
+
+                const existingUser: UserEntity | null = await this.authRepository.getUserByEmail(data.email);
+                if (existingUser) {
+                        return composeDefaultResponseResult(StatusCodeUtil.CONFLICT);
+                }
+
                 const userEntity: UserEntity = AuthConverter.convertUpsertRequestToEntity(data);
                 userEntity.password = await hash(userEntity.password, Constant.DEFAULT_SALT);
 
@@ -43,9 +56,9 @@ export class AuthService {
         }
 
         async login(data: LoginRequest): Promise<LoginResult> {
-                const existingUser = await this.authRepository.getUserByEmail(data.email);
+                const existingUser: UserEntity | null = await this.authRepository.getUserByEmail(data.email);
 
-                if (!existingUser) {
+                if (existingUser === null) {
                         return composeDefaultResponseResult(StatusCodeUtil.NOT_FOUND);
                 }
 
@@ -140,7 +153,7 @@ export class AuthService {
 
         // ini untuk buat token baru, simpan refresh token di DB, dan kembalikan credential lengkap.
         private async generateAndStoreCredential(user: UserEntity): Promise<Credential> {
-                const payload = new TokenPayloadAuth(user);
+                const payload = this.buildJwtPayload(user);
 
                 const accessToken = await this.tokenRepository.createAccessToken(payload);
                 const refreshToken = await this.tokenRepository.createRefreshToken(payload);
@@ -159,6 +172,15 @@ export class AuthService {
 
         private async createCredentialAccess(user: UserEntity): Promise<Credential> {
                 return this.generateAndStoreCredential(user);
+        }
+
+        private buildJwtPayload(user: UserEntity): TokenPayloadAuth {
+                return {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        role: user.role?.name ?? null
+                };
         }
 
         // untuk menghasilkan credential baru untuk user dan mengemasnya jadi response API.

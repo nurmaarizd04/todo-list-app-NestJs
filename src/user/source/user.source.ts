@@ -14,7 +14,8 @@ export class UserSource extends UserRepository {
         async getPageUser(query: UserQueryParamRequest): Promise<PagingData<UserEntity>> {
                 const contentEntities: UserEntity[] = await this.userRepository.find({
                         take: query.limit,
-                        skip: (query.page - 1) * query.limit
+                        skip: (query.page - 1) * query.limit,
+                        relations: { role: true }
                 });
 
                 const count: number = await this.userRepository.count({});
@@ -27,7 +28,8 @@ export class UserSource extends UserRepository {
 
         async getUserById(id: string): Promise<UserEntity | null> {
                 return await this.userRepository.findOne({
-                        where: { id: id }
+                        where: { id: id },
+                        relations: { role: true }
                 });
         }
 }

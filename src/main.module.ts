@@ -10,6 +10,8 @@ import { TodoItemModule } from "./todo-item/module/todo.item.module";
 import { TodoItemController } from "./todo-item/controller/todo.item.controller";
 import { TodoModule } from "./todo/module/todo.module";
 import { TodoController } from "./todo/controller/todo.controller";
+import { RoleModule } from "./role/module/role.module";
+import { RoleController } from "./role/controller/role.controller";
 
 @Module({
         imports: [
@@ -18,9 +20,10 @@ import { TodoController } from "./todo/controller/todo.controller";
                 AuthModule,
                 TokenModule,
                 UserModule,
+                RoleModule,
                 TodoModule,
                 TodoItemModule
         ],
-        controllers: [AuthController, UserController, TodoController, TodoItemController]
+        controllers: [AuthController, UserController, TodoController, TodoItemController, RoleController]
 })
 export class MainModule {}

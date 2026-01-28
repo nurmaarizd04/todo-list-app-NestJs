@@ -1,12 +1,21 @@
 import { Expose } from "class-transformer";
-import { UserEntity } from "src/core/entity/user.entity";
 
 export class TokenPayloadAuth {
-        @Expose({ name: "id" }) id: string;
-        @Expose({ name: "email" }) email: string;
+        @Expose({ name: "id" })
+        id: string;
 
-        constructor(user: UserEntity) {
-                this.id = user.id!;
-                this.email = user.email!;
-        }
+        @Expose({ name: "username" })
+        username: string;
+
+        @Expose({ name: "email" })
+        email: string;
+
+        @Expose({ name: "role" })
+        role?: string | null;
+
+        @Expose({ name: "iat" })
+        iat?: number;
+
+        @Expose({ name: "exp" })
+        exp?: number;
 }
